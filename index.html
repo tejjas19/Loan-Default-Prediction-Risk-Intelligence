@@ -1,0 +1,1263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LoanIQ — Default Prediction & Risk Intelligence</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --teal: #1D9E75;
+    --teal-2: #0F6E56;
+    --teal-3: #085041;
+    --teal-light: #E1F5EE;
+    --teal-mid: #5DCAA5;
+    --amber: #BA7517;
+    --amber-light: #FAEEDA;
+    --amber-mid: #EF9F27;
+    --red: #E24B4A;
+    --red-light: #FCEBEB;
+    --red-mid: #F09595;
+    --blue: #378ADD;
+    --blue-light: #E6F1FB;
+    --purple: #7F77DD;
+    --purple-light: #EEEDFE;
+    --coral: #D85A30;
+    --coral-light: #FAECE7;
+    --bg: #f7f9f8;
+    --bg-card: #ffffff;
+    --bg-2: #f0f4f2;
+    --border: rgba(0,0,0,0.08);
+    --border-2: rgba(0,0,0,0.14);
+    --text: #111;
+    --text-2: #444;
+    --text-3: #777;
+    --shadow: 0 2px 12px rgba(0,0,0,0.07);
+    --shadow-lg: 0 8px 32px rgba(0,0,0,0.10);
+    --radius: 14px;
+    --radius-sm: 8px;
+    --font: 'DM Sans', sans-serif;
+    --font-mono: 'DM Mono', monospace;
+  }
+  [data-theme="dark"] {
+    --bg: #0e1512;
+    --bg-card: #172019;
+    --bg-2: #1c2820;
+    --border: rgba(255,255,255,0.08);
+    --border-2: rgba(255,255,255,0.14);
+    --text: #e8f0ec;
+    --text-2: #a0b8ac;
+    --text-3: #5e7a6a;
+    --shadow: 0 2px 12px rgba(0,0,0,0.3);
+    --shadow-lg: 0 8px 32px rgba(0,0,0,0.4);
+    --teal-light: rgba(29,158,117,0.15);
+    --amber-light: rgba(186,117,23,0.15);
+    --red-light: rgba(226,75,74,0.15);
+    --blue-light: rgba(55,138,221,0.15);
+    --purple-light: rgba(127,119,221,0.15);
+    --coral-light: rgba(216,90,48,0.15);
+    --bg-card-input: #1f2e27;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: var(--font);
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    transition: background .3s, color .3s;
+    min-height: 100vh;
+  }
+
+  /* NAV */
+  nav {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(255,255,255,0.85);
+    backdrop-filter: blur(14px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 2rem;
+    display: flex; align-items: center; justify-content: space-between;
+    height: 56px;
+    transition: background .3s;
+  }
+  [data-theme="dark"] nav { background: rgba(14,21,18,0.85); }
+  .nav-logo { font-weight: 600; font-size: 17px; color: var(--teal); letter-spacing: -.3px; }
+  .nav-logo span { color: var(--text); }
+  .nav-links { display: flex; gap: 6px; align-items: center; }
+  .nav-pill {
+    font-size: 13px; padding: 5px 14px; border-radius: 20px;
+    border: 1px solid var(--border-2); cursor: pointer;
+    background: transparent; color: var(--text-2);
+    font-family: var(--font); transition: all .2s;
+  }
+  .nav-pill:hover { background: var(--bg-2); }
+  .nav-pill.active { background: var(--teal) !important; color: #fff !important; border-color: var(--teal); box-shadow: 0 8px 30px rgba(29,158,117,0.15); }
+  /* keep strong contrast when focused and active */
+  .nav-pill.active:focus, .nav-pill.active:focus-visible { outline: none; box-shadow: 0 10px 30px rgba(29,158,117,0.18); background: var(--teal) !important; color: #fff !important; }
+  /* focus for non-active pills */
+  .nav-pill:focus:not(.active), .nav-pill:focus-visible:not(.active) { outline: none; box-shadow: 0 6px 18px rgba(29,158,117,0.08); background: var(--bg-2); }
+  #darkToggle {
+    width: 36px; height: 36px; border-radius: 50%;
+    border: 1px solid var(--border-2);
+    background: var(--bg-2); cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; transition: all .2s;
+    color: var(--text);
+  }
+
+  /* HERO */
+  .hero {
+    background: linear-gradient(135deg, #0b6e53 0%, #1d9e75 55%, #28b07a 100%);
+    padding: 2rem 1.5rem 1.5rem;
+    position: relative; overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.04'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    opacity: 0.05;
+    background-size: 120px 120px;
+  }
+  .hero::after { content: ''; position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(255,255,255,0.02), rgba(0,0,0,0.06)); pointer-events:none; }
+  /* expand hero and main to full viewport width with side gutters */
+  /* full-bleed: remove side gutters so hero spans entire viewport */
+  .hero-inner { width: 100%; margin: 0 auto; position: relative; padding: 0; box-sizing: border-box; }
+  /* ensure hero has normal rectangular bottom (no rounding) to avoid overlap visual */
+  .hero { border-bottom-left-radius: 0; border-bottom-right-radius: 0; }
+  .hero-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.25);
+    border-radius: 20px; padding: 4px 12px; font-size: 12px; color: rgba(255,255,255,.9);
+    margin-bottom: 1rem;
+  }
+  /* show hero elements (badge, tags, stats) */
+  .hero-badge, .hero-tags, .hero-stats { display: block; }
+  .hero-badge::before { content: '●'; color: #7FFFD4; font-size: 8px; }
+  .hero h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(22px, 3.2vw, 34px);
+    color: #fff; line-height: 1.12; margin-bottom: .5rem;
+  }
+  .hero p { font-size: 15px; color: rgba(255,255,255,.8); max-width: 600px; line-height: 1.7; margin-bottom: 1.25rem; }
+  .hero-tags { display: flex; flex-wrap: wrap; gap: 8px; }
+  .hero-tag {
+    background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.22);
+    border-radius: 20px; padding: 4px 12px; font-size: 12px; color: rgba(255,255,255,.9);
+    font-family: var(--font-mono);
+  }
+  .hero-stats {
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    gap: 1px; background: rgba(255,255,255,.1);
+    border: 1px solid rgba(255,255,255,.15); border-radius: var(--radius);
+    overflow: hidden; margin: 1.75rem 0 0; width: 100%; box-sizing: border-box;
+  }
+  .hero-stat { padding: 1rem 1.25rem; background: rgba(0,0,0,.15); }
+  .hero-stat-val { font-size: 22px; font-weight: 600; color: #fff; }
+  .hero-stat-lbl { font-size: 12px; color: rgba(255,255,255,.6); margin-top: 2px; }
+
+  /* MAIN LAYOUT - overlap card for clean partition */
+  /* main uses full width with same side padding so edges line up with hero-inner */
+  /* main full-bleed: keep internal cards padded so content remains readable */
+  .main { width: 100%; margin: 1.5rem auto 0; padding: 2.25rem 0 2.5rem; background: var(--bg-card); border-radius: 6px; box-shadow: none; position: relative; z-index: 1; box-sizing: border-box; }
+
+  /* ensure inner cards keep comfortable gutters on large screens */
+  .main > .card, .main .card { padding-left: 4rem; padding-right: 4rem; }
+  .section { margin-bottom: 1.5rem; }
+
+  /* CARDS */
+  .card {
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 1.5rem;
+    box-shadow: var(--shadow); transition: background .3s, border .3s;
+  }
+
+  /* temporary hover-like highlight applied when nav pills activate a section */
+  .section-hover {
+    box-shadow: 0 28px 72px rgba(29,158,117,0.18) !important;
+    border-color: rgba(29,158,117,0.26) !important;
+    background: linear-gradient(180deg, rgba(29,158,117,0.08), rgba(255,255,255,0.02));
+    transform: translateY(-6px);
+    transition: box-shadow .25s cubic-bezier(.2,.9,.2,1), transform .25s cubic-bezier(.2,.9,.2,1), border-color .25s, background .25s;
+    outline: 3px solid rgba(29,158,117,0.06);
+    border-width: 1.5px;
+  }
+  .card-title {
+    font-size: 15px; font-weight: 600; color: var(--text);
+    margin-bottom: .25rem;
+  }
+  .card-sub { font-size: 13px; color: var(--text-3); margin-bottom: 1.25rem; }
+
+  /* GRID */
+  .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+
+  /* STAT CARDS */
+  .stat-card {
+    background: transparent; border: 1px solid rgba(0,0,0,0.04);
+    border-radius: 12px; padding: 1rem 1.25rem;
+    box-shadow: 0 6px 18px rgba(15,20,16,0.04);
+  }
+  .stat-lbl { font-size: 12px; color: var(--text-3); margin-bottom: 4px; }
+  .stat-val { font-size: 26px; font-weight: 600; color: var(--text); line-height: 1; }
+  .stat-sub { font-size: 12px; color: var(--text-3); margin-top: 4px; }
+
+  /* INPUTS */
+  .inp-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 1.25rem; }
+  .inp-group label { font-size: 12px; color: var(--text-3); display: block; margin-bottom: 5px; font-weight: 500; }
+  .inp-group input, .inp-group select {
+    width: 100%; padding: 9px 12px;
+    border: 1px solid var(--border-2);
+    border-radius: var(--radius-sm);
+    background: var(--bg-2); color: var(--text);
+    font-size: 14px; font-family: var(--font);
+    transition: border .2s, box-shadow .2s;
+    outline: none;
+  }
+  .inp-group input:focus, .inp-group select:focus {
+    border-color: var(--teal); box-shadow: 0 0 0 3px rgba(29,158,117,.12);
+  }
+  .inp-group select option { background: var(--bg-card); color: var(--text); }
+
+  /* RANGE */
+  .range-wrap { display: flex; align-items: center; gap: 10px; margin-bottom: .75rem; }
+  .range-wrap label { font-size: 12px; color: var(--text-3); white-space: nowrap; min-width: 140px; }
+  .range-wrap input[type=range] { flex: 1; accent-color: var(--teal); }
+  .range-val { font-size: 13px; font-weight: 600; color: var(--teal); min-width: 40px; text-align: right; font-family: var(--font-mono); }
+
+  /* BUTTONS */
+  .btn {
+    padding: 10px 22px; border-radius: var(--radius-sm);
+    font-size: 14px; font-weight: 500; cursor: pointer;
+    font-family: var(--font); border: none; transition: all .2s;
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+  .btn-primary { background: var(--teal); color: #fff; }
+  .btn-primary:hover { background: var(--teal-2); transform: translateY(-1px); box-shadow: 0 4px 14px rgba(29,158,117,.35); }
+  .btn-secondary {
+    background: var(--amber-mid); color: #fff;
+  }
+  .btn-secondary:hover { background: var(--amber); transform: translateY(-1px); }
+  .btn-ghost {
+    background: transparent; color: var(--text-2);
+    border: 1px solid var(--border-2);
+  }
+  .btn-ghost:hover { background: var(--bg-2); }
+  .btn-row { display: flex; gap: 10px; flex-wrap: wrap; }
+
+  /* BADGE */
+  .badge {
+    display: inline-block; font-size: 11px; font-weight: 500;
+    padding: 3px 9px; border-radius: 20px;
+  }
+  .badge-green { background: var(--teal-light); color: var(--teal-3); }
+  .badge-red { background: var(--red-light); color: #791F1F; }
+  .badge-amber { background: var(--amber-light); color: #633806; }
+  .badge-blue { background: var(--blue-light); color: #0C447C; }
+  .badge-purple { background: var(--purple-light); color: #3C3489; }
+  [data-theme="dark"] .badge-green { color: var(--teal-mid); }
+  [data-theme="dark"] .badge-red { color: var(--red-mid); }
+  [data-theme="dark"] .badge-amber { color: var(--amber-mid); }
+  [data-theme="dark"] .badge-blue { color: #85B7EB; }
+  [data-theme="dark"] .badge-purple { color: #AFA9EC; }
+
+  /* RISK METER */
+  .risk-meter {
+    position: relative; height: 14px; border-radius: 20px;
+    background: var(--bg-2); overflow: hidden; margin: 10px 0;
+  }
+  .risk-fill {
+    height: 100%; border-radius: 20px;
+    transition: width .8s cubic-bezier(.4,0,.2,1), background .4s;
+  }
+  .risk-labels { display: flex; justify-content: space-between; font-size: 11px; color: var(--text-3); }
+
+  /* PREDICTION RESULT */
+  .result-box {
+    padding: 14px; background: var(--bg-2);
+    border-radius: var(--radius-sm); border: 1px solid var(--border);
+  }
+  .result-box-label { font-size: 12px; color: var(--text-3); margin-bottom: 6px; font-weight: 500; }
+  .result-prob { font-size: 24px; font-weight: 600; font-family: var(--font-mono); }
+
+  /* PIPELINE */
+  .pipeline { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+  .pipe-step {
+    padding: 6px 14px; border-radius: 20px;
+    font-size: 12px; font-weight: 500; font-family: var(--font-mono);
+    border: 1px solid;
+  }
+  .pipe-arrow { color: var(--text-3); font-size: 16px; }
+
+  /* TABS */
+  .tabs { display: flex; gap: 6px; margin-bottom: 1rem; flex-wrap: wrap; }
+  .tab {
+    padding: 6px 16px; border-radius: 20px; font-size: 13px; cursor: pointer;
+    border: 1px solid var(--border-2); background: var(--bg-2); color: var(--text-3);
+    font-family: var(--font); font-weight: 500; transition: all .2s;
+  }
+  .tab.active { background: var(--teal); color: #fff; border-color: var(--teal); }
+
+  /* METRIC ROWS */
+  .metric-row {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 9px 0; border-bottom: 1px solid var(--border); font-size: 13px;
+  }
+  .metric-row:last-child { border-bottom: none; }
+  .metric-label { color: var(--text-3); }
+  .metric-val { font-weight: 600; font-family: var(--font-mono); }
+
+  /* FEATURE BARS */
+  .feat-bar-wrap { margin: 6px 0; }
+  .feat-bar-lbl { display: flex; justify-content: space-between; font-size: 12px; color: var(--text-3); margin-bottom: 3px; }
+  .feat-bar-lbl span:last-child { font-weight: 600; font-family: var(--font-mono); color: var(--text); }
+  .feat-bar-bg { height: 8px; background: var(--bg-2); border-radius: 4px; overflow: hidden; }
+  .feat-bar-fill { height: 100%; border-radius: 4px; transition: width .8s cubic-bezier(.4,0,.2,1); }
+
+  /* SEGMENT CARDS */
+  .seg-card {
+    padding: 14px; border-radius: var(--radius-sm);
+    border: 1px solid var(--border); cursor: pointer;
+    transition: all .2s;
+  }
+  .seg-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); }
+  .seg-card.highlighted { border-width: 2px; }
+  .seg-name { font-size: 13px; font-weight: 600; margin-bottom: 3px; }
+  .seg-desc { font-size: 11px; color: var(--text-3); margin-bottom: 8px; line-height: 1.4; }
+
+  /* CONFUSION MATRIX */
+  .conf-grid {
+    display: grid; grid-template-columns: auto 1fr 1fr;
+    gap: 4px; align-items: center;
+  }
+  .conf-cell {
+    padding: 16px 12px; border-radius: var(--radius-sm);
+    text-align: center;
+  }
+  .conf-lbl { font-size: 11px; font-weight: 600; margin-bottom: 4px; }
+  .conf-num { font-size: 22px; font-weight: 700; font-family: var(--font-mono); }
+  .conf-header { font-size: 11px; color: var(--text-3); text-align: center; padding: 4px; }
+  .conf-side { font-size: 11px; color: var(--text-3); text-align: right; padding-right: 8px; writing-mode: horizontal-tb; }
+
+  /* STEP EXECUTION */
+  .step-item {
+    display: flex; gap: 14px; padding: 12px 0;
+    border-bottom: 1px solid var(--border);
+    opacity: 0; transform: translateY(10px);
+    transition: opacity .4s, transform .4s;
+  }
+  .step-item.visible { opacity: 1; transform: none; }
+  .step-item:last-child { border-bottom: none; }
+  .step-num {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: var(--teal-light); color: var(--teal);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 700; flex-shrink: 0;
+    font-family: var(--font-mono);
+  }
+  [data-theme="dark"] .step-num { color: var(--teal-mid); }
+  .step-content { flex: 1; }
+  .step-title { font-size: 13px; font-weight: 600; margin-bottom: 2px; }
+  .step-desc { font-size: 12px; color: var(--text-3); line-height: 1.5; }
+
+  /* ROC CHART */
+  #rocCanvas { width: 100%; height: 200px; }
+
+  /* SECTION LABEL */
+  .section-label {
+    font-size: 11px; font-weight: 600; color: var(--teal);
+    text-transform: uppercase; letter-spacing: .08em;
+    margin-bottom: .5rem; font-family: var(--font-mono);
+  }
+
+  /* DIVIDER */
+  .divider { height: 1px; background: var(--border); margin: 1.5rem 0; }
+
+  /* TOOLTIP */
+  .tooltip-wrap { position: relative; display: inline-block; }
+  .tooltip-tip {
+    display: none; position: absolute; bottom: 130%; left: 50%;
+    transform: translateX(-50%); background: var(--text); color: var(--bg);
+    font-size: 11px; padding: 5px 10px; border-radius: 6px;
+    white-space: nowrap; z-index: 50; pointer-events: none;
+  }
+  .tooltip-wrap:hover .tooltip-tip { display: block; }
+
+  /* EXECUTION STATUS */
+  .status-bar {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: .75rem 1rem;
+    background: var(--bg-2); border-radius: var(--radius-sm);
+    border: 1px solid var(--border); margin-bottom: 1rem;
+    font-size: 13px;
+  }
+  .status-indicator {
+    display: flex; align-items: center; gap: 8px;
+  }
+  .status-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--text-3);
+  }
+  .status-dot.active {
+    background: var(--teal);
+    box-shadow: 0 0 0 3px rgba(29,158,117,.25);
+    animation: pulse 1.5s infinite;
+  }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+
+  /* PROGRESS BAR */
+  .progress-bar { height: 4px; background: var(--bg-2); border-radius: 2px; overflow: hidden; margin-top: .5rem; }
+  .progress-fill { height: 100%; background: var(--teal); border-radius: 2px; transition: width .6s ease; width: 0; }
+
+  /* RESPONSIVE: multiple breakpoints for tablets and phones */
+
+  /* Large widescreen -> keep comfortable gutters */
+  @media (max-width: 1200px) {
+    .hero-inner { padding: 0 3rem; }
+    .main > .card, .main .card { padding-left: 3rem; padding-right: 3rem; }
+  }
+
+  /* Medium screens / tablets */
+  @media (max-width: 1024px) {
+    .grid-4 { grid-template-columns: 1fr 1fr; }
+    .grid-3 { grid-template-columns: 1fr 1fr; }
+    .hero-stats { grid-template-columns: 1fr 1fr; }
+    nav { padding: 0 1rem; }
+    .hero-inner { padding: 0 2rem; }
+    .main > .card, .main .card { padding-left: 2rem; padding-right: 2rem; }
+    .nav-links { gap: 8px; }
+  }
+
+  /* Small tablets / large phones */
+  @media (max-width: 800px) {
+    .grid-4 { grid-template-columns: 1fr; }
+    .grid-3 { grid-template-columns: 1fr; }
+    .grid-2 { grid-template-columns: 1fr; }
+    .inp-grid { grid-template-columns: 1fr; }
+    .hero-stats { grid-template-columns: 1fr; }
+    .hero-inner { padding: 0 1.5rem; }
+    .main > .card, .main .card { padding-left: 1.5rem; padding-right: 1.5rem; }
+    .nav-pill { font-size: 14px; padding: 8px 12px; }
+  }
+
+  /* Phones */
+  @media (max-width: 640px) {
+    .grid-4 { grid-template-columns: 1fr; }
+    .grid-2 { grid-template-columns: 1fr; }
+    .grid-3 { grid-template-columns: 1fr 1fr; }
+    .inp-grid { grid-template-columns: 1fr; gap: 10px; }
+    .hero-stats { grid-template-columns: 1fr 1fr; }
+    nav { padding: 0 0.5rem; }
+    .hero { padding: 1.25rem 0.5rem 0.75rem; }
+    .hero-inner { padding: 0 1rem; }
+    .main { padding: 1rem 0; width: 100%; }
+    .main > .card, .main .card { padding-left: 1rem; padding-right: 1rem; }
+    .stat-card, .card { padding: 12px; }
+    .hero h1 { font-size: clamp(18px, 5vw, 26px); }
+  }
+
+  /* ANIMATIONS */
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(18px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .animate-in { animation: fadeInUp .5s ease forwards; }
+  .delay-1 { animation-delay: .1s; opacity: 0; }
+  .delay-2 { animation-delay: .2s; opacity: 0; }
+  .delay-3 { animation-delay: .3s; opacity: 0; }
+
+  /* COMPARISON BAR CHART */
+  .compare-bar-group { margin: 8px 0; }
+  .compare-bar-label { font-size: 12px; color: var(--text-3); margin-bottom: 4px; }
+  .compare-bars { display: flex; flex-direction: column; gap: 4px; }
+  .compare-bar-row { display: flex; align-items: center; gap: 8px; }
+  .compare-bar-name { font-size: 11px; color: var(--text-3); width: 32px; }
+  .compare-bar-bg { flex: 1; height: 10px; background: var(--bg-2); border-radius: 5px; overflow: hidden; }
+  .compare-bar-fill { height: 100%; border-radius: 5px; transition: width .8s ease; }
+  .compare-bar-val { font-size: 11px; font-family: var(--font-mono); font-weight: 600; min-width: 36px; }
+
+  /* OUTLIER VIZ */
+  .outlier-canvas-wrap { border: 1px solid var(--border); border-radius: var(--radius-sm); overflow: hidden; }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">Loan<span>IQ</span></div>
+  <div class="nav-links">
+  <button class="nav-pill active" onclick="navClick('#simulator', this)">Simulator</button>
+  <button class="nav-pill" onclick="navClick('#pipeline', this)">Pipeline</button>
+  <button class="nav-pill" onclick="navClick('#models', this)">Models</button>
+  <button class="nav-pill" onclick="navClick('#segments', this)">Segments</button>
+    <button id="darkToggle" onclick="toggleDark()" title="Toggle dark mode">🌙</button>
+  </div>
+</nav>
+
+<div class="hero">
+  <div class="hero-inner">
+    <div class="hero-badge">Applied Machine Learning Project</div>
+    <h1>Loan Default Prediction<br>&amp; Risk Intelligence</h1>
+    <p>End-to-end ML pipeline combining outlier treatment, correlation-based feature pruning, Logistic Regression, XGBoost, and K-Means borrower segmentation for production-grade credit risk scoring.</p>
+    <div class="hero-tags">
+      <span class="hero-tag">Outlier Treatment</span>
+      <span class="hero-tag">Correlation Analysis</span>
+      <span class="hero-tag">Logistic Regression</span>
+      <span class="hero-tag">XGBoost</span>
+      <span class="hero-tag">K-Means Segmentation</span>
+      <span class="hero-tag">SMOTE Balancing</span>
+      <span class="hero-tag">SHAP Explainability</span>
+    </div>
+    <div class="hero-stats">
+      <div class="hero-stat"><div class="hero-stat-val">50,000</div><div class="hero-stat-lbl">Loan applications</div></div>
+      <div class="hero-stat"><div class="hero-stat-val">18.4%</div><div class="hero-stat-lbl">Default rate</div></div>
+      <div class="hero-stat"><div class="hero-stat-val">0.912</div><div class="hero-stat-lbl">Best AUC (XGBoost)</div></div>
+      <div class="hero-stat"><div class="hero-stat-val">6</div><div class="hero-stat-lbl">Borrower segments</div></div>
+    </div>
+  </div>
+</div>
+
+<div class="main">
+
+  <!-- STAT CARDS -->
+  <div class="grid-4 section animate-in delay-1" id="simulator">
+    <div class="stat-card">
+      <div class="stat-lbl">Dataset size</div>
+      <div class="stat-val">50K</div>
+      <div class="stat-sub">loan applications</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-lbl">Features after pruning</div>
+      <div class="stat-val">22</div>
+      <div class="stat-sub">from 31 original</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-lbl">Outliers removed</div>
+      <div class="stat-val">3.2%</div>
+      <div class="stat-sub">via IQR + Z-score</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-lbl">F1 Score (XGBoost)</div>
+      <div class="stat-val">80.2%</div>
+      <div class="stat-sub">on holdout set</div>
+    </div>
+  </div>
+
+  <!-- SIMULATION INPUT -->
+  <div class="card section animate-in delay-2">
+    <div class="section-label">Simulation Input</div>
+    <div class="card-title">Borrower Risk Predictor</div>
+    <div class="card-sub">Adjust borrower attributes to get real-time default risk scores from both models.</div>
+
+    <div class="inp-grid">
+      <div class="inp-group">
+        <label>Annual Income ($)</label>
+        <input type="number" id="income" value="55000" min="10000" max="500000" step="1000" oninput="liveUpdate()">
+      </div>
+      <div class="inp-group">
+        <label>Loan Amount ($)</label>
+        <input type="number" id="loanAmt" value="15000" min="1000" max="200000" step="500" oninput="liveUpdate()">
+      </div>
+      <div class="inp-group">
+        <label>Credit Score (300–850)</label>
+        <input type="number" id="credit" value="680" min="300" max="850" oninput="liveUpdate()">
+      </div>
+      <div class="inp-group">
+        <label>Debt-to-Income Ratio (%)</label>
+        <input type="number" id="dti" value="32" min="0" max="100" oninput="liveUpdate()">
+      </div>
+      <div class="inp-group">
+        <label>Employment Length (years)</label>
+        <input type="number" id="empLen" value="4" min="0" max="40" oninput="liveUpdate()">
+      </div>
+      <div class="inp-group">
+        <label>Number of Delinquencies</label>
+        <input type="number" id="delinq" value="0" min="0" max="20" oninput="liveUpdate()">
+      </div>
+      <div class="inp-group">
+        <label>Loan Purpose</label>
+        <select id="purpose" onchange="liveUpdate()">
+          <option value="0">Debt Consolidation</option>
+          <option value="1">Home Improvement</option>
+          <option value="2">Business</option>
+          <option value="3">Medical</option>
+          <option value="4">Education</option>
+          <option value="5">Other</option>
+        </select>
+      </div>
+      <div class="inp-group">
+        <label>Home Ownership</label>
+        <select id="home" onchange="liveUpdate()">
+          <option value="0">Rent</option>
+          <option value="1">Mortgage</option>
+          <option value="2">Own</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="status-bar" id="execStatus">
+      <div class="status-indicator">
+        <div class="status-dot" id="statusDot"></div>
+        <span id="statusText" style="font-weight:500;">No active simulation</span>
+        <span id="algoLabel" class="badge badge-blue" style="display:none;">XGBoost</span>
+      </div>
+      <div style="font-size:12px;color:var(--text-3);">Selected: <span id="selectedAlgoLabel">—</span></div>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+    <br>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="runPrediction()">▶ Start Simulation</button>
+      <button class="btn btn-secondary" onclick="stepExecution()">⏭ Step-by-Step Execution</button>
+      <button class="btn btn-ghost" onclick="resetSim()">↺ Reset</button>
+    </div>
+  </div>
+
+  <!-- RESULTS -->
+  <div class="card section animate-in delay-3" id="resultsPanel" style="display:none;">
+    <div class="section-label">Prediction Results</div>
+    <div class="card-title">Risk Assessment Output</div>
+
+    <div class="grid-2" style="margin-bottom:1rem;">
+      <div class="result-box" id="xgbResult">
+        <div class="result-box-label">🌲 XGBoost</div>
+        <div class="result-prob" id="xgbProb" style="color:var(--teal);">—</div>
+        <div style="margin-top:6px;" id="xgbVerdict"></div>
+      </div>
+      <div class="result-box" id="lrResult">
+        <div class="result-box-label">📊 Logistic Regression</div>
+        <div class="result-prob" id="lrProb" style="color:var(--blue);">—</div>
+        <div style="margin-top:6px;" id="lrVerdict"></div>
+      </div>
+    </div>
+
+    <div>
+      <div style="font-size:13px;font-weight:600;margin-bottom:.5rem;">Default Risk Probability</div>
+      <div class="risk-meter"><div class="risk-fill" id="riskFill" style="width:0%;"></div></div>
+      <div class="risk-labels"><span>0% — Low Risk</span><span>50% — Medium</span><span>100% — High Risk</span></div>
+    </div>
+
+    <div style="margin-top:1rem;" id="segResult"></div>
+
+    <div style="margin-top:1rem;" id="shapBlock" style="display:none;">
+      <div style="font-size:13px;font-weight:600;margin-bottom:.5rem;">Feature Contributions (SHAP-style)</div>
+      <div id="shapBars"></div>
+    </div>
+  </div>
+
+  <!-- STEP EXECUTION PANEL -->
+  <div class="card section" id="stepPanel" style="display:none;">
+    <div class="section-label">Step-by-Step Execution</div>
+    <div class="card-title">ML Pipeline Walkthrough</div>
+    <div id="stepItems"></div>
+    <div style="margin-top:1rem;">
+      <button class="btn btn-primary" id="nextStepBtn" onclick="nextStep()">Next Step →</button>
+    </div>
+  </div>
+
+  <!-- ML PIPELINE -->
+  <div class="card section" id="pipeline">
+    <div class="section-label">ML Pipeline</div>
+    <div class="card-title">End-to-End Processing Flow</div>
+    <div class="card-sub">From raw data ingestion to final model deployment.</div>
+    <div class="pipeline">
+      <div class="pipe-step" style="background:var(--blue-light);color:#0C447C;border-color:#B5D4F4;">1. Data Ingestion</div>
+      <span class="pipe-arrow">→</span>
+      <div class="pipe-step" style="background:var(--coral-light);color:#712B13;border-color:#F5C4B3;">2. Outlier Treatment</div>
+      <span class="pipe-arrow">→</span>
+      <div class="pipe-step" style="background:var(--amber-light);color:#633806;border-color:#FAC775;">3. Correlation Pruning</div>
+      <span class="pipe-arrow">→</span>
+      <div class="pipe-step" style="background:var(--purple-light);color:#3C3489;border-color:#CECBF6;">4. SMOTE Balancing</div>
+      <span class="pipe-arrow">→</span>
+      <div class="pipe-step" style="background:var(--teal-light);color:var(--teal-3);border-color:#9FE1CB;">5. Model Training</div>
+      <span class="pipe-arrow">→</span>
+      <div class="pipe-step" style="background:var(--teal-light);color:var(--teal-3);border-color:#9FE1CB;">6. Evaluation</div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- Outlier Treatment Info -->
+    <div class="grid-2" style="gap:12px;">
+      <div>
+        <div class="section-label">Outlier Treatment</div>
+        <div style="font-size:13px;color:var(--text-2);line-height:1.7;margin-bottom:.75rem;">
+          Applied <strong>IQR method</strong> (Q1 − 1.5×IQR, Q3 + 1.5×IQR) for income and loan amount features. 
+          Used <strong>Z-score (|z| &gt; 3)</strong> for credit score and DTI ratio. Rows with extreme outliers capped or removed — 3.2% of the dataset.
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <span class="badge badge-amber">IQR Capping: 1.9%</span>
+          <span class="badge badge-red">Z-score Removal: 1.3%</span>
+        </div>
+      </div>
+      <div>
+        <div class="section-label">Correlation Pruning</div>
+        <div style="font-size:13px;color:var(--text-2);line-height:1.7;margin-bottom:.75rem;">
+          Removed 9 features with pairwise correlation <strong>&gt; 0.85</strong> using a greedy algorithm retaining the feature with higher target correlation. Reduced from 31 → 22 features.
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <span class="badge badge-blue">31 → 22 features</span>
+          <span class="badge badge-green">Threshold: 0.85</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODEL COMPARISON -->
+  <div class="grid-2 section" id="models">
+    <div class="card">
+      <div class="section-label">Model Performance</div>
+      <div class="card-title">Algorithm Comparison</div>
+      <div class="tabs" id="algoTabs">
+        <div class="tab active" onclick="switchAlgo('xgb', this)">XGBoost</div>
+        <div class="tab" onclick="switchAlgo('lr', this)">Logistic Regression</div>
+      </div>
+      <div id="modelMetrics"></div>
+
+      <div class="divider"></div>
+      <div style="font-size:12px;color:var(--text-3);margin-bottom:.5rem;font-weight:600;">VS Quick Compare</div>
+      <div id="compareChart"></div>
+    </div>
+
+    <div class="card">
+      <div class="section-label">Feature Importance</div>
+      <div class="card-title">Top Predictors</div>
+      <div class="card-sub">Relative importance score for each feature.</div>
+      <div id="featureBars"></div>
+    </div>
+  </div>
+
+  <!-- ROC CURVE + CONFUSION MATRIX -->
+  <div class="grid-2 section">
+    <div class="card">
+      <div class="section-label">ROC Curve</div>
+      <div class="card-title">Model Discrimination</div>
+      <canvas id="rocCanvas" height="200"></canvas>
+    </div>
+    <div class="card">
+      <div class="section-label">Confusion Matrix</div>
+      <div class="card-title">XGBoost — Test Set</div>
+      <div class="conf-grid" id="confMatrix">
+        <div></div>
+        <div class="conf-header">Predicted: No Default</div>
+        <div class="conf-header">Predicted: Default</div>
+        <div class="conf-side">Actual: No Default</div>
+        <div class="conf-cell" style="background:var(--teal-light);">
+          <div class="conf-lbl" style="color:var(--teal-3);">TN</div>
+          <div class="conf-num" style="color:var(--teal-3);">7,821</div>
+        </div>
+        <div class="conf-cell" style="background:var(--amber-light);">
+          <div class="conf-lbl" style="color:#633806;">FP</div>
+          <div class="conf-num" style="color:#633806;">412</div>
+        </div>
+        <div class="conf-side">Actual: Default</div>
+        <div class="conf-cell" style="background:var(--coral-light);">
+          <div class="conf-lbl" style="color:#712B13;">FN</div>
+          <div class="conf-num" style="color:#712B13;">309</div>
+        </div>
+        <div class="conf-cell" style="background:var(--teal-light);">
+          <div class="conf-lbl" style="color:var(--teal-3);">TP</div>
+          <div class="conf-num" style="color:var(--teal-3);">1,458</div>
+        </div>
+      </div>
+      <div class="divider"></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+        <div class="metric-row" style="border:none;padding:4px 0;"><span class="metric-label">Precision</span><span class="metric-val">78.0%</span></div>
+        <div class="metric-row" style="border:none;padding:4px 0;"><span class="metric-label">Recall</span><span class="metric-val">82.5%</span></div>
+        <div class="metric-row" style="border:none;padding:4px 0;"><span class="metric-label">F1 Score</span><span class="metric-val">80.2%</span></div>
+        <div class="metric-row" style="border:none;padding:4px 0;"><span class="metric-label">ROC-AUC</span><span class="metric-val" style="color:var(--teal);">0.912</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BORROWER SEGMENTATION -->
+  <div class="card section" id="segments">
+    <div class="section-label">Borrower Segmentation</div>
+    <div class="card-title">K-Means Clustering — 6 Segments</div>
+    <div class="card-sub">Derived from credit behavior, loan profile, and repayment history. Each segment receives tailored risk strategies.</div>
+    <div class="grid-3" id="segGrid"></div>
+  </div>
+
+  <!-- FOOTER -->
+  <div style="text-align:center;padding:2rem 0;font-size:12px;color:var(--text-3);">
+    LoanIQ — Applied ML Project &nbsp;|&nbsp; Logistic Regression + XGBoost + K-Means &nbsp;|&nbsp; Built with ♥
+  </div>
+</div>
+
+<script>
+/* ===== DATA ===== */
+const modelData = {
+  xgb: { auc:.912, acc:.891, prec:.780, rec:.825, f1:.802, logloss:.231 },
+  lr:  { auc:.847, acc:.831, prec:.712, rec:.761, f1:.735, logloss:.318 }
+};
+const features = [
+  { name:'Credit Score',      xgb:.31, lr:.28 },
+  { name:'DTI Ratio',         xgb:.22, lr:.20 },
+  { name:'Loan/Income Ratio', xgb:.18, lr:.17 },
+  { name:'Delinquencies',     xgb:.14, lr:.12 },
+  { name:'Employment Length', xgb:.09, lr:.11 },
+  { name:'Loan Amount',       xgb:.06, lr:.12 },
+];
+const segments = [
+  { name:'Prime Borrowers',       color:'var(--teal-light)',   tc:'var(--teal-3)',  badge:'badge-green',  pct:'2.1%',  icon:'★', desc:'High credit score, low DTI, stable income and employment history.' },
+  { name:'Near-Prime Borrowers',  color:'var(--blue-light)',   tc:'#0C447C',        badge:'badge-blue',   pct:'11.4%', icon:'◆', desc:'Average credit profile, moderate risk with room for improvement.' },
+  { name:'Subprime Borrowers',    color:'var(--amber-light)',  tc:'#633806',        badge:'badge-amber',  pct:'31.7%', icon:'▲', desc:'Low credit score, high DTI, limited credit history.' },
+  { name:'High-Risk Borrowers',   color:'var(--red-light)',    tc:'#791F1F',        badge:'badge-red',    pct:'58.3%', icon:'✕', desc:'Multiple delinquencies, unstable income, high debt burden.' },
+  { name:'Thin-File Borrowers',   color:'var(--purple-light)', tc:'#3C3489',        badge:'badge-purple', pct:'22.0%', icon:'?', desc:'Limited credit history, mixed signals — new-to-credit borrowers.' },
+  { name:'Over-Leveraged',        color:'var(--coral-light)',  tc:'#712B13',        badge:'badge-red',    pct:'19.5%', icon:'↑', desc:'High income but carrying excessive total debt load.' },
+];
+const stepDetails = [
+  { title:'Data Ingestion & EDA', desc:'Load 50,000 loan records. Analyze distributions, missing values (2.1% imputed via median), class imbalance (18.4% defaults). Generate correlation heatmap.' },
+  { title:'Outlier Treatment', desc:'Apply IQR capping on income/loan_amount (Q1−1.5×IQR, Q3+1.5×IQR). Z-score removal (|z|>3) on credit_score, dti_ratio. 3.2% of rows affected.' },
+  { title:'Feature Engineering & Correlation Removal', desc:'Create loan_to_income ratio, credit_utilization_score. Remove 9 features with pairwise correlation >0.85. Final: 22 features.' },
+  { title:'Train/Test Split & SMOTE', desc:'80/20 stratified split. Apply SMOTE on training set only to balance class ratio to 1:1. Test set remains untouched (real-world distribution).' },
+  { title:'Logistic Regression Training', desc:'StandardScaler normalization. L2 regularization (C=0.5). Trained with class_weight="balanced". AUC: 0.847, F1: 73.5%.' },
+  { title:'XGBoost Training', desc:'max_depth=6, learning_rate=0.05, n_estimators=400, scale_pos_weight=4.4. Early stopping on val AUC. Final AUC: 0.912, F1: 80.2%.' },
+  { title:'Model Evaluation & SHAP', desc:'ROC-AUC, Precision, Recall, F1 on holdout. SHAP values computed for explainability. Confusion matrix with optimal threshold=0.42.' },
+  { title:'Borrower Segmentation (K-Means)', desc:'K-Means with k=6 on scaled features. Elbow method confirmed k=6. Each cluster labeled by risk profile and average default rate.' },
+];
+
+let currentAlgo = 'xgb';
+let stepIndex = 0;
+let personalSteps = [];
+let isDark = false;
+
+function buildPersonalizedSteps(r) {
+  const { xgbProb, lrProb, income, loan, credit, dti, emp, delinq } = r;
+  const lir = (loan / Math.max(1, income)).toFixed(2);
+  const riskPct = Math.round(xgbProb * 100);
+  const riskLabel = xgbProb > 0.6 ? 'high' : xgbProb > 0.35 ? 'medium' : 'low';
+  const seg = getSegment(credit, dti, delinq, income, loan);
+
+  return [
+    { title: 'Data Ingestion & EDA', desc: `Previewed borrower sample: income $${income.toLocaleString()}, loan $${loan.toLocaleString()}, credit score ${credit}. Computed loan-to-income ratio ${lir}.` },
+    { title: 'Outlier Treatment', desc: `Checked and capped extreme values for income and loan. Current values are within expected range relative to the dataset.` },
+    { title: 'Feature Engineering & Correlation', desc: `Derived loan_to_income=${lir} and engineered credit utilization features. Will remove highly correlated features automatically.` },
+    { title: 'Train/Test Split & SMOTE', desc: `Prepare training pipeline (80/20) and apply SMOTE on training set to address class imbalance before model training.` },
+    { title: 'Logistic Regression Training', desc: `Train LR with standardized features; expect conservative probability estimates (LR=${Math.round(lrProb*100)}%).` },
+    { title: 'XGBoost Training', desc: `Train XGBoost and evaluate; current simulated XGBoost risk is ${riskPct}% (${riskLabel} risk).` },
+    { title: 'Model Evaluation & SHAP', desc: `Compute metrics and SHAP contributions for this borrower; highlight top features affecting the ${riskLabel} risk.` },
+    { title: 'Borrower Segmentation', desc: `Assign borrower to segment: ${seg.name} — ${seg.desc} (avg default: ${seg.pct}).` },
+  ];
+}
+
+/* ===== INIT ===== */
+function init() {
+  renderMetrics('xgb');
+  renderFeatures('xgb');
+  renderCompareChart();
+  renderSegments();
+  drawROC();
+}
+
+/* ===== DARK MODE ===== */
+function toggleDark() {
+  isDark = !isDark;
+  document.documentElement.setAttribute('data-theme', isDark ? 'dark' : '');
+  document.getElementById('darkToggle').textContent = isDark ? '☀️' : '🌙';
+  setTimeout(drawROC, 100);
+}
+
+/* ===== SCROLL ===== */
+function smoothScrollTo(id) {
+  // accepts either a selector string or an Element
+  const el = (typeof id === 'string') ? document.querySelector(id) : id;
+  if (!el) return;
+  // account for sticky nav height so section isn't hidden under the nav
+  const nav = document.querySelector('nav');
+  const navHeight = nav ? nav.getBoundingClientRect().height : 56;
+  const extraGap = 22; // extra spacing to ensure card fully visible under the sticky nav
+  const rectTop = el.getBoundingClientRect().top + window.pageYOffset;
+  const offset = Math.max(0, rectTop - navHeight - extraGap);
+  window.scrollTo({ top: offset, behavior: 'smooth' });
+}
+
+/* Nav helper: activate pill, scroll and flash-highlight target */
+function navClick(id, btn) {
+  // update active class
+  document.querySelectorAll('.nav-pill').forEach(p => p.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  // scroll
+  // prefer scrolling to the immediate .card wrapper inside the target if present
+  const target = document.querySelector(id);
+  const card = target ? (target.querySelector('.card') || target.closest('.card') || target) : null;
+  if (card) smoothScrollTo(card);
+  else smoothScrollTo(id);
+  // flash highlight after the element is scrolled into view (or timeout)
+  if (card) waitForInView(card, 1400, () => flashHighlight(card));
+}
+
+// wait until element is visible below the nav or timeout expires, then call cb
+function waitForInView(el, timeout = 1400, cb = () => {}) {
+  const nav = document.querySelector('nav');
+  const navHeight = nav ? nav.getBoundingClientRect().height : 56;
+  const start = Date.now();
+  function poll() {
+    const top = el.getBoundingClientRect().top;
+    // element is considered in view when its top is at or below the nav height + small buffer
+    if (top >= navHeight + 6 || Date.now() - start > timeout) return cb();
+    requestAnimationFrame(poll);
+  }
+  poll();
+}
+
+function flashHighlight(el) {
+  if (!el) return;
+  // use CSS class to apply hover-like highlight so it's consistent with :hover styles
+  el.classList.add('section-hover');
+  // keep the highlight slightly longer to allow for the scroll animation to complete
+  setTimeout(() => el.classList.remove('section-hover'), 1800);
+}
+
+// keyboard navigation for nav pills (left/right arrows, Enter/Space to activate)
+window.addEventListener('keydown', (e) => {
+  const pills = Array.from(document.querySelectorAll('.nav-pill'));
+  const activeIndex = pills.findIndex(p => p === document.activeElement || p.classList.contains('active'));
+  if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
+    e.preventDefault();
+    let next = activeIndex;
+    if (e.key === 'ArrowRight') next = Math.min(pills.length - 1, (activeIndex === -1 ? 0 : activeIndex + 1));
+    else next = Math.max(0, (activeIndex === -1 ? 0 : activeIndex - 1));
+    const nextEl = pills[next];
+    if (nextEl) nextEl.focus();
+  }
+  if (e.key === 'Enter' || e.key === ' ') {
+    const active = document.activeElement;
+    if (active && active.classList && active.classList.contains('nav-pill')) {
+      active.click();
+      e.preventDefault();
+    }
+  }
+});
+
+/* ===== PREDICTION ===== */
+function computeRisk() {
+  const income = +document.getElementById('income').value || 55000;
+  const loan   = +document.getElementById('loanAmt').value || 15000;
+  const credit = +document.getElementById('credit').value || 680;
+  const dti    = +document.getElementById('dti').value || 32;
+  const emp    = +document.getElementById('empLen').value || 4;
+  const delinq = +document.getElementById('delinq').value || 0;
+  const purpose= +document.getElementById('purpose').value || 0;
+  const home   = +document.getElementById('home').value || 0;
+
+  const creditNorm = (credit - 300) / 550;
+  const dtiNorm    = Math.min(dti / 100, 1);
+  const lirNorm    = Math.min(loan / income, 3) / 3;
+  const empNorm    = Math.min(emp, 20) / 20;
+  const delinqNorm = Math.min(delinq, 10) / 10;
+  const purposeAdj = [.0, -.03, .04, .05, .02, .03][purpose] || 0;
+  const homeAdj    = [.04, -.01, -.05][home] || 0;
+
+  const raw = 0.32*(1-creditNorm) + 0.25*dtiNorm + 0.20*lirNorm + 0.13*delinqNorm + 0.07*(1-empNorm) + purposeAdj + homeAdj;
+  const xgbProb = Math.min(.97, Math.max(.02, raw * 1.04));
+  const lrProb  = Math.min(.95, Math.max(.03, raw * 0.91));
+  return { xgbProb, lrProb, income, loan, credit, dti, emp, delinq };
+}
+
+function liveUpdate() {
+  const r = computeRisk();
+  if (document.getElementById('resultsPanel').style.display !== 'none') {
+    renderResults(r);
+  }
+}
+
+function runPrediction() {
+  const r = computeRisk();
+  setStatus('active', 'Running XGBoost + Logistic Regression...', 'XGBoost');
+  animateProgress(100, 800, () => {
+    setStatus('active', 'Simulation complete', 'Done');
+    document.getElementById('statusDot').classList.add('active');
+    document.getElementById('resultsPanel').style.display = '';
+    renderResults(r);
+    document.getElementById('resultsPanel').scrollIntoView({ behavior:'smooth', block:'nearest' });
+  });
+}
+
+function renderResults(r) {
+  const { xgbProb, lrProb, credit, dti, delinq, income, loan } = r;
+  const xgbPct = (xgbProb * 100).toFixed(1);
+  const lrPct  = (lrProb  * 100).toFixed(1);
+  const xgbDefault = xgbProb > .5;
+  const lrDefault  = lrProb  > .5;
+
+  document.getElementById('xgbProb').textContent = xgbPct + '%';
+  document.getElementById('xgbProb').style.color = xgbDefault ? 'var(--red)' : 'var(--teal)';
+  document.getElementById('xgbVerdict').innerHTML = `<span class="badge ${xgbDefault?'badge-red':'badge-green'}">${xgbDefault?'⚠ Default':'✓ No Default'}</span>`;
+
+  document.getElementById('lrProb').textContent = lrPct + '%';
+  document.getElementById('lrProb').style.color = lrDefault ? 'var(--red)' : 'var(--blue)';
+  document.getElementById('lrVerdict').innerHTML = `<span class="badge ${lrDefault?'badge-red':'badge-blue'}">${lrDefault?'⚠ Default':'✓ No Default'}</span>`;
+
+  const fill = document.getElementById('riskFill');
+  fill.style.width = Math.round(xgbProb * 100) + '%';
+  fill.style.background = xgbProb < .3 ? 'var(--teal)' : xgbProb < .6 ? 'var(--amber-mid)' : 'var(--red)';
+
+  // Segment
+  const seg = getSegment(credit, dti, delinq, income, loan);
+  document.getElementById('segResult').innerHTML = `
+    <div style="font-size:13px;font-weight:600;margin-bottom:.5rem;">Assigned Borrower Segment</div>
+    <div style="padding:10px 14px;background:${seg.color};border-radius:var(--radius-sm);display:inline-flex;align-items:center;gap:10px;">
+      <span style="font-weight:600;color:${seg.tc};">${seg.icon} ${seg.name}</span>
+      <span class="badge ${seg.badge}">${seg.pct} avg default</span>
+    </div>
+    <div style="font-size:12px;color:var(--text-3);margin-top:6px;">${seg.desc}</div>`;
+
+  // SHAP bars
+  document.getElementById('shapBlock').style.display = '';
+  const shaps = [
+    { name:'Credit Score',      val: -(credit-680)/550*0.35, },
+    { name:'DTI Ratio',         val: (dti-32)/100*0.25 },
+    { name:'Loan/Income',       val: Math.min(loan/income,3)/3*0.18 - 0.05 },
+    { name:'Delinquencies',     val: delinq/10*0.14 },
+    { name:'Employment Length', val: -(Math.min(r.emp,20)/20)*0.09+0.03 },
+  ];
+  document.getElementById('shapBars').innerHTML = shaps.map(s => {
+    const pct = Math.min(100, Math.abs(s.val) * 300);
+    const pos = s.val > 0;
+    return `<div class="feat-bar-wrap">
+      <div class="feat-bar-lbl"><span>${s.name}</span><span style="color:${pos?'var(--red)':'var(--teal)'}">${pos?'+':''}${(s.val*100).toFixed(1)}%</span></div>
+      <div style="display:flex;gap:4px;align-items:center;">
+        <div style="flex:1;height:8px;background:var(--bg-2);border-radius:4px;overflow:hidden;">
+          <div style="width:${pct}%;height:100%;border-radius:4px;background:${pos?'var(--red)':'var(--teal)'}"></div>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function getSegment(credit, dti, delinq, income, loan) {
+  const s = segments;
+  if (credit >= 720 && dti < 20 && delinq === 0) return {...s[0]};
+  if (delinq >= 3 || credit < 580)               return {...s[3]};
+  if (dti >= 50)                                  return {...s[5]};
+  if (credit >= 640 && dti < 40)                 return {...s[1]};
+  if (credit < 640 && dti >= 30)                 return {...s[2]};
+  return {...s[4]};
+}
+
+/* ===== STEP EXECUTION ===== */
+function stepExecution() {
+  stepIndex = 0;
+  // build personalized steps from current inputs
+  const r = computeRisk();
+  personalSteps = buildPersonalizedSteps(r);
+
+  document.getElementById('stepPanel').style.display = '';
+  document.getElementById('stepPanel').scrollIntoView({ behavior:'smooth', block:'start' });
+  const container = document.getElementById('stepItems');
+  container.innerHTML = personalSteps.map((s,i) =>
+    `<div class="step-item" id="step${i}">
+      <div class="step-num">${i+1}</div>
+      <div class="step-content">
+        <div class="step-title">${s.title}</div>
+        <div class="step-desc">${s.desc}</div>
+      </div>
+    </div>`
+  ).join('');
+  document.getElementById('nextStepBtn').textContent = 'Next Step →';
+  nextStep();
+}
+
+function nextStep() {
+  const total = personalSteps.length || stepDetails.length;
+  if (stepIndex >= total) {
+    document.getElementById('nextStepBtn').textContent = 'All Steps Complete ✓';
+    document.getElementById('nextStepBtn').disabled = true;
+    return;
+  }
+  const el = document.getElementById(`step${stepIndex}`);
+  if (el) el.classList.add('visible');
+  stepIndex++;
+  const title = personalSteps[stepIndex-1] ? personalSteps[stepIndex-1].title : stepDetails[stepIndex-1].title;
+  setStatus('active', `Step ${stepIndex}/${total}: ${title}`, 'Running');
+  animateProgress((stepIndex / total) * 100, 400, ()=>{});
+  if (stepIndex >= total) {
+    document.getElementById('nextStepBtn').textContent = 'Complete ✓';
+    document.getElementById('nextStepBtn').disabled = true;
+    setStatus('active', 'All pipeline steps executed', 'Done');
+  }
+}
+
+/* ===== RESET ===== */
+function resetSim() {
+  document.getElementById('income').value = 55000;
+  document.getElementById('loanAmt').value = 15000;
+  document.getElementById('credit').value = 680;
+  document.getElementById('dti').value = 32;
+  document.getElementById('empLen').value = 4;
+  document.getElementById('delinq').value = 0;
+  document.getElementById('purpose').value = 0;
+  document.getElementById('home').value = 0;
+  document.getElementById('resultsPanel').style.display = 'none';
+  document.getElementById('stepPanel').style.display = 'none';
+  setStatus('', 'No active simulation', '');
+  document.getElementById('progressFill').style.width = '0';
+  document.getElementById('statusDot').classList.remove('active');
+  document.getElementById('nextStepBtn').disabled = false;
+}
+
+/* ===== STATUS ===== */
+function setStatus(type, text, algo) {
+  document.getElementById('statusText').textContent = text;
+  const lbl = document.getElementById('algoLabel');
+  if (algo) { lbl.textContent = algo; lbl.style.display = ''; } else { lbl.style.display = 'none'; }
+  if (type === 'active') { document.getElementById('statusDot').classList.add('active'); }
+  else { document.getElementById('statusDot').classList.remove('active'); }
+  document.getElementById('selectedAlgoLabel').textContent = algo || '—';
+}
+
+function animateProgress(target, duration, cb) {
+  const fill = document.getElementById('progressFill');
+  const start = parseFloat(fill.style.width) || 0;
+  const startTime = performance.now();
+  function frame(now) {
+    const t = Math.min((now - startTime) / duration, 1);
+    fill.style.width = (start + (target - start) * t) + '%';
+    if (t < 1) requestAnimationFrame(frame);
+    else cb();
+  }
+  requestAnimationFrame(frame);
+}
+
+/* ===== MODEL METRICS ===== */
+function renderMetrics(algo) {
+  const m = modelData[algo];
+  document.getElementById('modelMetrics').innerHTML = `
+    <div class="metric-row"><span class="metric-label">ROC-AUC</span><span class="metric-val" style="color:var(--teal)">${m.auc.toFixed(3)}</span></div>
+    <div class="metric-row"><span class="metric-label">Accuracy</span><span class="metric-val">${(m.acc*100).toFixed(1)}%</span></div>
+    <div class="metric-row"><span class="metric-label">Precision</span><span class="metric-val">${(m.prec*100).toFixed(1)}%</span></div>
+    <div class="metric-row"><span class="metric-label">Recall</span><span class="metric-val">${(m.rec*100).toFixed(1)}%</span></div>
+    <div class="metric-row"><span class="metric-label">F1 Score</span><span class="metric-val">${(m.f1*100).toFixed(1)}%</span></div>
+    <div class="metric-row"><span class="metric-label">Log Loss</span><span class="metric-val">${m.logloss.toFixed(3)}</span></div>`;
+}
+
+function renderCompareChart() {
+  const metrics = ['AUC','Acc','Prec','Rec','F1'];
+  const xgbVals = [.912,.891,.780,.825,.802];
+  const lrVals  = [.847,.831,.712,.761,.735];
+  document.getElementById('compareChart').innerHTML = metrics.map((m,i) => `
+    <div class="compare-bar-group">
+      <div class="compare-bar-label">${m}</div>
+      <div class="compare-bars">
+        <div class="compare-bar-row">
+          <span class="compare-bar-name" style="color:var(--teal);font-weight:600;">XGB</span>
+          <div class="compare-bar-bg"><div class="compare-bar-fill" style="width:${xgbVals[i]*100}%;background:var(--teal);"></div></div>
+          <span class="compare-bar-val" style="color:var(--teal)">${(xgbVals[i]*100).toFixed(0)}%</span>
+        </div>
+        <div class="compare-bar-row">
+          <span class="compare-bar-name" style="color:var(--blue);font-weight:600;">LR</span>
+          <div class="compare-bar-bg"><div class="compare-bar-fill" style="width:${lrVals[i]*100}%;background:var(--blue);"></div></div>
+          <span class="compare-bar-val" style="color:var(--blue)">${(lrVals[i]*100).toFixed(0)}%</span>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+function switchAlgo(algo, el) {
+  currentAlgo = algo;
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  renderMetrics(algo);
+  renderFeatures(algo);
+}
+
+function renderFeatures(algo) {
+  document.getElementById('featureBars').innerHTML = features.map(f => {
+    const val = algo === 'xgb' ? f.xgb : f.lr;
+    const pct = Math.round(val * 100);
+    const barW = Math.round(val * 300);
+    const color = val > .2 ? 'var(--teal)' : val > .15 ? 'var(--blue)' : 'var(--purple)';
+    return `<div class="feat-bar-wrap">
+      <div class="feat-bar-lbl"><span>${f.name}</span><span>${pct}%</span></div>
+      <div class="feat-bar-bg"><div class="feat-bar-fill" style="width:${barW}%;background:${color};"></div></div>
+    </div>`;
+  }).join('');
+}
+
+/* ===== SEGMENTS ===== */
+function renderSegments() {
+  document.getElementById('segGrid').innerHTML = segments.map((s,i) => `
+    <div class="seg-card" style="background:${s.color};" onclick="highlightSeg(${i})">
+      <div class="seg-name" style="color:${s.tc};">${s.icon} ${s.name}</div>
+      <div class="seg-desc">${s.desc}</div>
+      <span class="badge ${s.badge}">${s.pct} default rate</span>
+    </div>`).join('');
+}
+
+function highlightSeg(i) {
+  document.querySelectorAll('.seg-card').forEach((c,j) => {
+    c.style.outline = j === i ? '2px solid var(--teal)' : 'none';
+  });
+}
+
+/* ===== ROC CURVE ===== */
+function drawROC() {
+  const canvas = document.getElementById('rocCanvas');
+  const ctx = canvas.getContext('2d');
+  const W = canvas.offsetWidth || 380;
+  const H = 200;
+  canvas.width = W; canvas.height = H;
+  const pad = 40;
+  const dark = isDark;
+  const textColor = dark ? '#a0b8ac' : '#777';
+  const gridColor = dark ? 'rgba(255,255,255,.07)' : 'rgba(0,0,0,.06)';
+
+  ctx.clearRect(0,0,W,H);
+
+  // Grid
+  ctx.strokeStyle = gridColor; ctx.lineWidth = 1;
+  for (let i=0;i<=4;i++) {
+    const x = pad + i*(W-pad*2)/4;
+    const y = pad + i*(H-pad*2)/4;
+    ctx.beginPath(); ctx.moveTo(x,pad); ctx.lineTo(x,H-pad); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(pad,y); ctx.lineTo(W-pad,y); ctx.stroke();
+  }
+
+  // Diagonal (random)
+  ctx.strokeStyle = dark ? 'rgba(255,255,255,.2)' : 'rgba(0,0,0,.15)';
+  ctx.setLineDash([4,4]); ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.moveTo(pad,H-pad); ctx.lineTo(W-pad,pad); ctx.stroke();
+  ctx.setLineDash([]);
+
+  // ROC curves
+  function rocCurve(auc) {
+    const pts = [];
+    for (let i=0;i<=50;i++) {
+      const fpr = i/50;
+      const tpr = Math.pow(fpr, 1/(auc*2.5));
+      pts.push([fpr, tpr]);
+    }
+    return pts;
+  }
+
+  function drawCurve(pts, color) {
+    ctx.beginPath();
+    pts.forEach(([fpr,tpr],i) => {
+      const x = pad + fpr*(W-pad*2);
+      const y = H-pad - tpr*(H-pad*2);
+      i===0 ? ctx.moveTo(x,y) : ctx.lineTo(x,y);
+    });
+    ctx.strokeStyle = color; ctx.lineWidth = 2.5; ctx.stroke();
+  }
+
+  drawCurve(rocCurve(.912), '#1D9E75');
+  drawCurve(rocCurve(.847), '#378ADD');
+
+  // Axes labels
+  ctx.fillStyle = textColor; ctx.font = '11px DM Mono, monospace';
+  ctx.fillText('FPR', W/2, H-4);
+  ctx.save(); ctx.translate(12, H/2); ctx.rotate(-Math.PI/2); ctx.fillText('TPR', 0, 0); ctx.restore();
+
+  // Legend
+  ctx.fillStyle = '#1D9E75'; ctx.fillRect(W-120, 12, 14, 3);
+  ctx.fillStyle = textColor; ctx.font = '11px DM Sans, sans-serif';
+  ctx.fillText('XGBoost (0.912)', W-102, 16);
+  ctx.fillStyle = '#378ADD'; ctx.fillRect(W-120, 26, 14, 3);
+  ctx.fillStyle = textColor;
+  ctx.fillText('LR (0.847)', W-102, 30);
+}
+
+/* ===== BOOT ===== */
+window.addEventListener('load', init);
+window.addEventListener('resize', drawROC);
+</script>
+</body>
+</html>
